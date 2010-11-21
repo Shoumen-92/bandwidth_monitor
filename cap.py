@@ -18,18 +18,17 @@ def nice(value):
 class Unlimited(object):
   """Unlimited bandwidth usage."""
 
-  def __init__(self, data):
-    self.data = data
-
-  def monthly(self):
-    blob = self.data['month']
+  @staticmethod
+  def monthly(data):
+    blob = data['month']
     for moment in sorted(blob.keys()):
       values = blob[moment]
       print('%s: %10s %10s' % (moment,  nice(values[0]), nice(values[1])))
     return 0.
 
-  def daily(self):
-    blob = self.data['day']
+  @staticmethod
+  def daily(data):
+    blob = data['day']
     for moment in sorted(blob.keys()):
       values = blob[moment]
       print('%s: %10s %10s' % (moment,  nice(values[0]), nice(values[1])))
@@ -38,16 +37,15 @@ class Unlimited(object):
 
 class CombinedMonthly(object):
   """Monthly cap where the cap is the sum of your upload and download."""
-  def __init__(self, data, max_kb):
-    self.data = data
+  def __init__(self, max_kb):
     self.max_kb = float(max_kb)
 
-  def monthly(self):
+  def monthly(self, data):
     """Prints out information about bandwidth usage. Expects values in kb.
 
     Returns the current's month bandwidth usage fraction."""
     print('Max: %s' % nice(self.max_kb))
-    blob = self.data['month']
+    blob = data['month']
     total = 0
     for moment in sorted(blob.keys()):
       values = blob[moment]
@@ -58,12 +56,12 @@ class CombinedMonthly(object):
       return 0.
     return total / self.max_kb
 
-  def daily(self):
+  def daily(self, data):
     """Prints out information about bandwidth usage. Expects values in kb.
 
     Returns the current's day bandwidth usage fraction."""
     print('Max: %s' % nice(self.max_kb / 30.))
-    blob = self.data['day']
+    blob = data['day']
     total = 0
     for moment in sorted(blob.keys()):
       values = blob[moment]
@@ -78,17 +76,16 @@ class CombinedMonthly(object):
 
 class SeparateMonthly(object):
   """Monthly cap with individual download and upload caps."""
-  def __init__(self, data, max_dn_kb, max_up_kb):
-    self.data = data
+  def __init__(self, max_dn_kb, max_up_kb):
     self.max_dn_kb = float(max_dn_kb)
     self.max_up_kb = float(max_up_kb)
 
-  def monthly(self):
+  def monthly(self, data):
     """Prints out information about bandwidth usage. Expects values in kb.
 
     Returns the current's month bandwidth usage fraction."""
     print('Max: %s - %s' % (nice(self.max_dn_kb), nice(self.max_up_kb)))
-    blob = self.data['month']
+    blob = data['month']
     values = (0., 0.)
     for moment in sorted(blob.keys()):
       values = blob[moment]
@@ -106,14 +103,14 @@ class SeparateMonthly(object):
       max_up = values[1] / self.max_up_kb
     return max(max_dn, max_up)
 
-  def daily(self):
+  def daily(self, data):
     """Prints out information about bandwidth usage. Expects values in kb.
 
     Returns the current's day bandwidth usage fraction."""
     # TODO: count the number of days left in the month.
     print('Max: %s - %s' % (
         nice(self.max_dn_kb / 30.), nice(self.max_up_kb / 30.)))
-    blob = self.data['day']
+    blob = data['day']
     values = (0., 0.)
     for moment in sorted(blob.keys()):
       values = blob[moment]
