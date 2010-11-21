@@ -6,12 +6,14 @@ import re
 import sys
 import time
 
-# TODO: Make the import on demand.
-try:
-  from selenium.firefox import webdriver
-except ImportError:
-  print >> sys.stderr, 'Run sudo easy_install selenium'
-  sys.exit(1)
+
+def get_webdriver():
+  try:
+    from selenium.firefox import webdriver
+  except ImportError:
+    print >> sys.stderr, 'Run sudo easy_install selenium'
+    sys.exit(1)
+  return webdriver.WebDriver()
 
 
 class Videotron(object):
@@ -46,7 +48,7 @@ class Videotron(object):
     # '--server-args=-screen 0, 800x600x24', 'firefox'])
     # pid = int(open('/tmp/.X%d-lock' % server_num).read().strip())
     # os.kill(pid, signal.SIGINT)
-    wd = webdriver.WebDriver()
+    wd = get_webdriver()
     try:
       shame('Loading initial page to create cookies')
       wd.get(self.initial_url)
